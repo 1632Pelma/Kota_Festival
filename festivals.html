@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Festivals — Kota Festival</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <img src="logo.png" alt="Kota Festival Logo" class="logo" />
+      </div>
+
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+           <li><a href="festivals.html"  class="active">Festivals</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="tickets.html">Buy Tickets</a></li>
+          
+        </ul>
+      </nav>
+
+      <button class="nav-toggle" id="navToggle">☰</button>
+    </div>
+  </header>
+
+  <!-- ===== FESTIVALS SECTION ===== -->
+  <section class="festivals-page">
+    <div class="container">
+      <h2>Upcoming Festivals</h2>
+
+      <!-- Filter row -->
+      <div class="filter-bar">
+        <select id="locationFilter">
+          <option value="all">All Locations</option>
+          <option value="Gauteng">Gauteng</option>
+          <option value="Mpumalanga">Mpumalanga</option>
+          <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+          <option value="Free State">Free State</option>
+          <option value="Western Cape">Western Cape</option>
+          <option value="Lesotho">Lesotho</option>
+          <option value="Eswatini">Eswatini</option>
+        </select>
+
+        <select id="dateFilter">
+          <option value="all">All Dates</option>
+          <option value="march">March 2025</option>
+          <option value="april">April 2025</option>
+          <option value="may">May 2025</option>
+          <option value="august">August 2025</option>
+          <option value="september">September 2025</option>
+          <option value="october">October 2025</option>
+          <option value="november">November 2025</option>
+          <option value="december">December 2025</option>
+        </select>
+
+        <input type="text" id="searchInput" placeholder="Search" />
+        <button id="searchBtn" class="btn-primary"><i class="fas fa-search"></i> Search</button>
+      </div>
+
+      <!-- Festivals grid -->
+      <div id="festivalsGrid" class="festivals-grid"></div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <p>© 2026 Kota Festival | www.kotafestival.com</p>
+
+      <div class="footer-social-inline">
+        <a href="#" aria-label="Facebook" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Whatsapp" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" aria-label="Instagram" class="social-icon"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPT ===== -->
+  <script>
+    // Navbar toggle
+    const navToggle = document.getElementById("navToggle");
+    const mainNav = document.getElementById("mainNav");
+    navToggle.addEventListener("click", () => {
+      mainNav.style.display = mainNav.style.display === "block" ? "none" : "block";
+    });
+
+    // Sample festivals data with poster images
+const festivals = [
+  { 
+    title: "EastRand Kota Festival", 
+    date: "2025-03-01", 
+    location: "Gauteng", 
+    venue: "Emperors Park", 
+    description: "Street food, family fun & live DJs.",
+    image: "festivals/eastrand.png"
+  },
+  { 
+    title: "Jozi Kota Festival", 
+    date: "2025-04-13", 
+    location: "Gauteng", 
+    venue: "The Station, Newtown", 
+    description: "Street food & performances.",
+    image:"festivals/jozi.png"
+  },
+  { 
+    title: "Mpumalanga Kota Festival", 
+    date: "2025-05-03", 
+    location: "Mpumalanga", 
+    venue: "Botanical Garden, Nelspruit", 
+    description: "Local chefs & art.",
+    image: "festivals/mpumalanga.png"
+  },
+  { 
+    title: "Ethekweni Kota Festival", 
+    date: "2025-08-02", 
+    location: "KwaZulu-Natal", 
+    venue: "Kings Park Stadium, Durban", 
+    description: "Coastal vibes & music.",
+    image:"festivals/ethekwini.png"
+  },
+  { 
+    title: "Cape Town Kota Festival", 
+    date: "2025-09-06", 
+    location: "Western Cape", 
+    venue: "Castle of Good Hope", 
+    description: "Cultural showcases.",
+    image: "festivals/cape.png"
+  },
+  { 
+    title: "Eswatini Kota Festival", 
+    date: "2025-09-26", 
+    location: "Eswatini", 
+    venue: "Malkerns Country Club", 
+    description: "Cross-border celebration.",
+    image: "festivals/eswatini.png"
+  },
+  { 
+    title: "Free State Kota Festival", 
+    date: "2025-10-25", 
+    location: "Free State", 
+    venue: "Botanical Gardens, Bloemfontein", 
+    description: "Local flavors.",
+    image: "festivals/freestate.jpg"
+  },
+  { 
+    title: "Lesotho Kota Festival", 
+    date: "2025-11-01", 
+    location: "Lesotho", 
+    venue: "Maseru Country Club", 
+    description: "Border region festival.",
+    image: "festivals/lesotho.png"
+  },
+  { 
+    title: "Pitori Kota Festival", 
+    date: "2025-11-29", 
+    location: "Gauteng", 
+    venue: "Fountains Valley, Pretoria", 
+    description: "Pretoria edition.",
+    image:"festivals/pretoria.png"
+  },
+  { 
+    title: "Tembisa Kota Festival", 
+    date: "2025-12-06", 
+    location: "Gauteng", 
+    venue: "Esselen Park, Tembisa", 
+    description: "Community event.",
+    image: "festivals/tembisa.png"
+  }
+];
+
+// Format date nicely
+function formatDate(date) {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+// Render festivals (with images)
+function renderFestivals(list) {
+  festivalsGrid.innerHTML = "";
+  if (!list.length) {
+    festivalsGrid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#666;">No festivals found.</p>`;
+    return;
+  }
+
+  list.forEach(f => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="poster">
+        <img src="${f.image}" alt="${f.title} poster">
+      </div>
+      <h4>${f.title}</h4>
+      <div class="meta"><i class="fa-solid fa-location-dot"></i> ${f.venue}, ${f.location}</div>
+      <div class="meta"><i class="fa-solid fa-calendar"></i> ${formatDate(f.date)}</div>
+      <p>${f.description}</p>
+      <a href="tickets.html" class="btn-primary" style="text-decoration:none;text-align:center;">Buy Ticket</a>
+    `;
+    festivalsGrid.appendChild(card);
+  });
+}
+
+
+
+    renderFestivals(festivals);
+
+    // Filter logic
+    function filterFestivals() {
+      const loc = locationFilter.value.toLowerCase();
+      const dateValue = dateFilter.value.toLowerCase();
+      const query = searchInput.value.trim().toLowerCase();
+
+      const filtered = festivals.filter(f => {
+        const inLocation = loc === "all" ? true : f.location.toLowerCase().includes(loc);
+        const inDate =
+          dateValue === "all"
+            ? true
+            : new Date(f.date).toLocaleString("default", { month: "long" }).toLowerCase().includes(dateValue);
+        const matchesQuery = query
+          ? f.title.toLowerCase().includes(query) ||
+            f.venue.toLowerCase().includes(query) ||
+            f.location.toLowerCase().includes(query)
+          : true;
+        return inLocation && inDate && matchesQuery;
+      });
+
+      renderFestivals(filtered);
+    }
+
+    searchBtn.addEventListener("click", filterFestivals);
+  </script>
+</body>
+</html>
