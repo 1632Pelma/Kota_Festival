@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Buy Tickets — Kota Festival</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <img src="logo.png" alt="Kota Festival logo" class="logo" />
+      </div>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="festivals.html">Festivals</a></li>
+          <li><a href="about.html">About Us</a></li>
+           <li><a href="contact.html">Contact</a></li>
+          <li><a href="tickets.html" class="active">Buy Tickets</a></li>
+        </ul>
+      </nav>
+      <button class="nav-toggle" id="navToggle">☰</button>
+    </div>
+  </header>
+
+
+  <main>
+    <section class="tickets-section">
+      <div class="container">
+        <h3>Buy Tickets</h3>
+        <p class="small-muted">Choose a city below and click <strong>Buy</strong> to reserve your spot.</p>
+
+    
+        <div style="max-width:1100px;margin:1rem auto 1.5rem;display:flex;gap:.5rem;align-items:center;">
+          <input id="searchTickets" placeholder="Search city or festival (e.g. Jozi, Durban)" style="flex:1;padding:.6rem;border-radius:8px;border:1px solid #e6e6e6" />
+          <select id="regionSelect" style="padding:.6rem;border-radius:8px;border:1px solid #e6e6e6">
+            <option value="all">All regions</option>
+            <option>Gauteng</option>
+            <option>Mpumalanga</option>
+            <option>KwaZulu-Natal</option>
+            <option>Western Cape</option>
+            <option>Free State</option>
+            <option>Lesotho</option>
+            <option>Eswatini</option>
+          </select>
+          <button id="filterBtn" class="btn-primary">Filter</button>
+          <button id="clearFilter" class="btn-light">Clear</button>
+        </div>
+
+       
+        <div id="ticketsGrid" class="tickets-grid" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+
+<footer class="site-footer">
+    <div class="container footer-row">
+      <p>© 2026 Kota Festival | www.kotafestival.com</p>
+
+      <div class="footer-social-inline">
+        <a href="#" aria-label="Facebook" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Whatsapp" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" aria-label="Instagram" class="social-icon"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* Sample events dataset (matches the wireframe) */
+    const festivals = [
+      { id:1, title:'EastRand Kota Festival', date:'2025-03-01', city:'Emperors Park', region:'Gauteng', price:150, currency:'R', venue:'Keption Park', desc:'Street food, family fun & live DJs.' },
+      { id:2, title:'Jozi Kota Festival', date:'2025-04-13', city:'Johannesburg', region:'Gauteng', price:150, currency:'R', venue:'The Station, Newtown', desc:'Street food & performances.' },
+      { id:3, title:'Mpumalanga Kota Festival', date:'2025-05-03', city:'Nelspruit', region:'Mpumalanga', price:150, currency:'R', venue:'Botanical Garden', desc:'Local chefs & art.' },
+      { id:4, title:'Ethekweni Kota Festival', date:'2025-08-02', city:'Durban', region:'KwaZulu-Natal', price:150, currency:'R', venue:'Kings Park Stadium', desc:'Coastal vibes & music.' },
+      { id:5, title:'Vaal Kota Festival', date:'2025-08-30', city:'Vaal', region:'Free State', price:150, currency:'R', venue:'Emerald Resort', desc:'Family-friendly activities.' },
+      { id:6, title:'Cape Town Kota Festival', date:'2025-09-06', city:'Cape Town', region:'Western Cape', price:150, currency:'R', venue:'Castle of Good Hope', desc:'Cultural showcases.' },
+      { id:7, title:'Eswatini Kota Festival', date:'2025-09-26', city:'Malkerns', region:'Eswatini', price:120, currency:'E', venue:'Malkerns Country Club', desc:'Cross-border celebration.' },
+      { id:8, title:'Jozi (FNB) Kota Festival', date:'2025-10-04', city:'Johannesburg', region:'Gauteng', price:200, currency:'R', venue:'FNB Stadium', desc:'Big stage performances.' },
+      { id:9, title:'FreeState Kota Festival', date:'2025-10-25', city:'Bloemfontein', region:'Free State', price:120, currency:'R', venue:'Botanical Gardens', desc:'Local flavors.' },
+      { id:10, title:'Lesotho Kota Festival', date:'2025-11-01', city:'Maseru', region:'Lesotho', price:50, currency:'L', venue:'Maseru Country Club', desc:'Border region festival.' }
+    ];
+
+    const ticketsGrid = document.getElementById('ticketsGrid');
+    const ticketModal = document.getElementById('ticketModal');
+    const modalDesc = document.getElementById('modalDesc');
+    const ticketForm = document.getElementById('ticketForm');
+    const ticketQty = document.getElementById('ticketQty');
+    const ticketType = document.getElementById('ticketType');
+    const purchaseStatus = document.getElementById('purchaseStatus');
+    const modalClose = document.getElementById('modalClose');
+    const modalCancel = document.getElementById('modalCancel');
+    const filterBtn = document.getElementById('filterBtn');
+    const clearFilter = document.getElementById('clearFilter');
+    const searchTickets = document.getElementById('searchTickets');
+    const regionSelect = document.getElementById('regionSelect');
+
+    let currentEvent = null;
+
+    function formatDate(iso){
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
+    }
+
+    function renderTickets(list){
+      ticketsGrid.innerHTML = '';
+      if(!list.length){
+        ticketsGrid.innerHTML = '<div style="grid-column:1/-1;padding:1.2rem;background:#fff;border-radius:12px;text-align:center;color:#666">No events found matching your search.</div>';
+        return;
+      }
+
+      list.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'ticket-card';
+        card.innerHTML = `
+          <div class="row">
+            <div>
+              <div style="font-weight:700">${ev.title}</div>
+              <div class="location small-muted">${ev.venue} • ${ev.city}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="date">${formatDate(ev.date)}</div>
+              <div class="price">${ev.currency}${ev.price}</div>
+            </div>
+          </div>
+          <div class="small-muted" style="margin-top:.4rem">${ev.desc}</div>
+          <div class="cta">
+            <button class="btn-light" data-id="${ev.id}" onclick="viewDetails(${ev.id})">Details</button>
+            <button class="btn-primary" data-id="${ev.id}" onclick="openTicketModal(${ev.id})">Buy</button>
+          </div>
+        `;
+        ticketsGrid.appendChild(card);
+      });
+    }
+
+    // initial render
+    renderTickets(festivals);
+
+    // filter logic
+    function filterEvents(){
+      const q = searchTickets.value.trim().toLowerCase();
+      const region = regionSelect.value;
+      const filtered = festivals.filter(f => {
+        const matchesRegion = region === 'all' ? true : (f.region.toLowerCase() === region.toLowerCase());
+        const matchesQuery = q === '' ? true : (
+          f.title.toLowerCase().includes(q) ||
+          f.city.toLowerCase().includes(q) ||
+          f.venue.toLowerCase().includes(q) ||
+          f.date.toLowerCase().includes(q)
+        );
+        return matchesRegion && matchesQuery;
+      });
+      renderTickets(filtered);
+    }
+
+    filterBtn.addEventListener('click', filterEvents);
+    clearFilter.addEventListener('click', () => {
+      searchTickets.value = '';
+      regionSelect.value = 'all';
+      renderTickets(festivals);
+    });
+
+    // view details (simple modal alert — can be improved)
+    window.viewDetails = function(id){
+      const ev = festivals.find(x=>x.id===id);
+      if(!ev) return;
+      alert(`${ev.title}\n\nDate: ${formatDate(ev.date)}\nVenue: ${ev.venue}, ${ev.city}\nPrice: ${ev.currency}${ev.price}\n\n${ev.desc}`);
+    }
+
+    // modal open / close
+    window.openTicketModal = function(id){
+      currentEvent = festivals.find(x=>x.id===id);
+      if(!currentEvent) return;
+      ticketModal.setAttribute('aria-hidden','false');
+      modalDesc.textContent = `${currentEvent.title} — ${formatDate(currentEvent.date)} • ${currentEvent.venue}, ${currentEvent.city} — From ${currentEvent.currency}${currentEvent.price}`;
+      purchaseStatus.textContent = '';
+      ticketQty.value = 1;
+      ticketType.value = 'general';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTicketModal(){
+      ticketModal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    }
+
+    modalClose.addEventListener('click', closeTicketModal);
+    modalCancel.addEventListener('click', closeTicketModal);
+    ticketModal.addEventListener('click', (e) => {
+      if(e.target === ticketModal) closeTicketModal();
+    });
+
+    // purchase flow (simulated)
+    ticketForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if(!currentEvent){
+        purchaseStatus.style.color = 'red';
+        purchaseStatus.textContent = 'No event selected.';
+        return;
+      }
+      const qty = Math.max(1, parseInt(ticketQty.value) || 1);
+      const isVip = ticketType.value === 'vip';
+      const unitPrice = currentEvent.price + (isVip ? 100 : 0);
+      const total = unitPrice * qty;
+      purchaseStatus.style.color = 'green';
+      purchaseStatus.textContent = `Success! You purchased ${qty} x ${isVip ? 'VIP' : 'General'} for ${currentEvent.title}. Total: ${currentEvent.currency}${total}. (Demo — no payment processed)`;
+      // close after short delay
+      setTimeout(() => {
+        closeTicketModal();
+      }, 2200);
+    });
+
+    // responsive nav toggle (same behavior as other pages)
+    const navToggle = document.getElementById('navToggle');
+    const mainNav = document.getElementById('mainNav');
+    navToggle.addEventListener('click', () => {
+      mainNav.style.display = mainNav.style.display === 'block' ? 'none' : 'block';
+    });
+  </script>
+</body>
+</html>
