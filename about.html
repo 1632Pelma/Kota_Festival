@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About — Kota Festival</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <img src="logo.png" alt="Kota Festival Logo" class="logo" />
+      </div>
+
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+           <li><a href="festivals.html">Festivals</a></li>
+          <li><a href="about.html" class="active">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="tickets.html">Buy Tickets</a></li>
+          
+        </ul>
+      </nav>
+
+      <button class="nav-toggle" id="navToggle">☰</button>
+    </div>
+  </header>
+  
+  <section id="about" class="about">
+    <div class="container">
+      <h2>About Kota Festival</h2>
+      <p>
+         The Kota Festival is a nationwide celebration of township street food, music and community.
+ Inspired by the iconic South African Kota sandwich, the festival travels across provinces and beyond to Lesotho and Eswatini,
+ bringing together local flavors, creativity and community spirit.
+ Our mission is to empower township chefs, celebrate creativity, and unite people through food and fun.
+      </p>
+
+      <div class="highlights">
+        <div class="highlight">
+          <i class="fas fa-drum"></i>
+          <h4>Live Music</h4>
+          <p>Top DJs and artists performing across cities.</p>
+        </div>
+
+        <div class="highlight">
+          <i class="fas fa-hamburger"></i>
+          <h4>Delicious Food</h4>
+          <p>Authentic township flavors from local vendors.</p>
+        </div>
+
+        <div class="highlight">
+          <i class="fas fa-users"></i>
+          <h4>Community</h4>
+          <p>Celebrate unity, joy, and the culture of the streets.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GALLERY SECTION ===== -->
+  <section id="gallery" class="gallery">
+    <div class="container">
+      <h2>Gallery</h2>
+      <div class="gallery-wrapper">
+        <button class="gallery-btn prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+
+        <div class="gallery-track">
+          <img src="gallery/Screenshot (170).png" alt="Festival crowd">
+          <img src="gallery/Screenshot (171).png" alt="Food stall">
+          <img src="gallery/Screenshot (172).png" alt="Live music">
+          <img src="gallery/Screenshot (173).png" alt="Chefs cooking">
+          <img src="gallery/Screenshot (174).png" alt="Festival event">
+          <img src="gallery/Screenshot (175).png" alt="Happy crowd">
+          <img src="gallery/Screenshot (170).png" alt="Festival crowd">
+          <img src="gallery/Screenshot (171).png" alt="Food stall">
+          <img src="gallery/Screenshot (172).png" alt="Live music">
+          <img src="gallery/Screenshot (173).png" alt="Chefs cooking">
+          <img src="gallery/Screenshot (174).png" alt="Festival event">
+          <img src="gallery/Screenshot (175).png" alt="Happy crowd">
+          
+        </div>
+
+        <button class="gallery-btn next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <p>© 2026 Kota Festival | www.kotafestival.com</p>
+
+      <div class="footer-social-inline">
+        <a href="#" aria-label="Facebook" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Whatsapp" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" aria-label="Instagram" class="social-icon"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+<script>
+    // Toggle navbar
+    const navToggle = document.getElementById("navToggle");
+    const mainNav = document.getElementById("mainNav");
+    navToggle.addEventListener("click", () => {
+      mainNav.style.display = mainNav.style.display === "block" ? "none" : "block";
+    });
+
+    // Gallery slider logic
+    const track = document.querySelector('.gallery-track');
+    const prevBtn = document.querySelector('.gallery-btn.prev');
+    const nextBtn = document.querySelector('.gallery-btn.next');
+
+    let scrollAmount = 0;
+    const scrollStep = 300;
+
+    nextBtn.addEventListener('click', () => {
+      track.scrollBy({ left: scrollStep, behavior: 'smooth' });
+    });
+
+    prevBtn.addEventListener('click', () => {
+      track.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+    });
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
