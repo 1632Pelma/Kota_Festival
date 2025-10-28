@@ -20,7 +20,7 @@
           <li><a href="index.html">Home</a></li>
           <li><a href="festivals.html">Festivals</a></li>
           <li><a href="about.html">About Us</a></li>
-           <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html">Contact</a></li>
           <li><a href="tickets.html" class="active">Buy Tickets</a></li>
         </ul>
       </nav>
@@ -28,14 +28,12 @@
     </div>
   </header>
 
-
   <main>
     <section class="tickets-section">
       <div class="container">
         <h3>Buy Tickets</h3>
         <p class="small-muted">Choose a city below and click <strong>Buy</strong> to reserve your spot.</p>
 
-    
         <div style="max-width:1100px;margin:1rem auto 1.5rem;display:flex;gap:.5rem;align-items:center;">
           <input id="searchTickets" placeholder="Search city or festival (e.g. Jozi, Durban)" style="flex:1;padding:.6rem;border-radius:8px;border:1px solid #e6e6e6" />
           <select id="regionSelect" style="padding:.6rem;border-radius:8px;border:1px solid #e6e6e6">
@@ -52,17 +50,50 @@
           <button id="clearFilter" class="btn-light">Clear</button>
         </div>
 
-       
         <div id="ticketsGrid" class="tickets-grid" aria-live="polite"></div>
       </div>
     </section>
   </main>
 
 
-<footer class="site-footer">
+  <div id="ticketModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <h3>Purchase Tickets</h3>
+      <p id="modalDesc"></p>
+
+      <form id="ticketForm">
+        <label for="ticketType">Ticket Type:</label>
+        <select id="ticketType" required>
+          <option value="general">General - R150</option>
+          <option value="vip">VIP - R250</option>
+          <option value="vvip">VVIP - R400</option>
+        </select>
+
+        <label for="ticketQty">Quantity:</label>
+        <input type="number" id="ticketQty" min="1" value="1" required />
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Purchase</button>
+          <button type="button" id="modalCancel" class="btn-light">Cancel</button>
+        </div>
+
+        <p id="purchaseStatus" style="margin-top:0.5rem;font-size:0.9rem;"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="thankYouModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <h3>Thank You!</h3>
+      <p>Your ticket purchase was successful. See you at the festival!</p>
+      <button id="closeThankYou" class="btn-primary">Go Back</button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
     <div class="container footer-row">
       <p>© 2026 Kota Festival | www.kotafestival.com</p>
-
       <div class="footer-social-inline">
         <a href="#" aria-label="Facebook" class="social-icon"><i class="fab fa-facebook-f"></i></a>
         <a href="#" aria-label="Whatsapp" class="social-icon"><i class="fab fa-whatsapp"></i></a>
@@ -72,7 +103,6 @@
   </footer>
 
   <script>
-    /* Sample events dataset (matches the wireframe) */
     const festivals = [
       { id:1, title:'EastRand Kota Festival', date:'2025-03-01', city:'Emperors Park', region:'Gauteng', price:150, currency:'R', venue:'Keption Park', desc:'Street food, family fun & live DJs.' },
       { id:2, title:'Jozi Kota Festival', date:'2025-04-13', city:'Johannesburg', region:'Gauteng', price:150, currency:'R', venue:'The Station, Newtown', desc:'Street food & performances.' },
@@ -88,6 +118,7 @@
 
     const ticketsGrid = document.getElementById('ticketsGrid');
     const ticketModal = document.getElementById('ticketModal');
+    const thankYouModal = document.getElementById('thankYouModal');
     const modalDesc = document.getElementById('modalDesc');
     const ticketForm = document.getElementById('ticketForm');
     const ticketQty = document.getElementById('ticketQty');
@@ -95,10 +126,11 @@
     const purchaseStatus = document.getElementById('purchaseStatus');
     const modalClose = document.getElementById('modalClose');
     const modalCancel = document.getElementById('modalCancel');
-    const filterBtn = document.getElementById('filterBtn');
-    const clearFilter = document.getElementById('clearFilter');
+    const closeThankYou = document.getElementById('closeThankYou');
     const searchTickets = document.getElementById('searchTickets');
     const regionSelect = document.getElementById('regionSelect');
+    const filterBtn = document.getElementById('filterBtn');
+    const clearFilter = document.getElementById('clearFilter');
 
     let currentEvent = null;
 
@@ -110,7 +142,7 @@
     function renderTickets(list){
       ticketsGrid.innerHTML = '';
       if(!list.length){
-        ticketsGrid.innerHTML = '<div style="grid-column:1/-1;padding:1.2rem;background:#fff;border-radius:12px;text-align:center;color:#666">No events found matching your search.</div>';
+        ticketsGrid.innerHTML = '<div style="grid-column:1/-1;padding:1.2rem;background:#fff;border-radius:12px;text-align:center;color:#666">No events found.</div>';
         return;
       }
 
@@ -130,57 +162,26 @@
           </div>
           <div class="small-muted" style="margin-top:.4rem">${ev.desc}</div>
           <div class="cta">
-            <button class="btn-light" data-id="${ev.id}" onclick="viewDetails(${ev.id})">Details</button>
-            <button class="btn-primary" data-id="${ev.id}" onclick="openTicketModal(${ev.id})">Buy</button>
-          </div>
-        `;
+            <button class="btn-light" onclick="viewDetails(${ev.id})">Details</button>
+            <button class="btn-primary" onclick="openTicketModal(${ev.id})">Buy</button>
+          </div>`;
         ticketsGrid.appendChild(card);
       });
     }
 
-    // initial render
     renderTickets(festivals);
 
-    // filter logic
-    function filterEvents(){
-      const q = searchTickets.value.trim().toLowerCase();
-      const region = regionSelect.value;
-      const filtered = festivals.filter(f => {
-        const matchesRegion = region === 'all' ? true : (f.region.toLowerCase() === region.toLowerCase());
-        const matchesQuery = q === '' ? true : (
-          f.title.toLowerCase().includes(q) ||
-          f.city.toLowerCase().includes(q) ||
-          f.venue.toLowerCase().includes(q) ||
-          f.date.toLowerCase().includes(q)
-        );
-        return matchesRegion && matchesQuery;
-      });
-      renderTickets(filtered);
-    }
-
-    filterBtn.addEventListener('click', filterEvents);
-    clearFilter.addEventListener('click', () => {
-      searchTickets.value = '';
-      regionSelect.value = 'all';
-      renderTickets(festivals);
-    });
-
-    // view details (simple modal alert — can be improved)
     window.viewDetails = function(id){
       const ev = festivals.find(x=>x.id===id);
-      if(!ev) return;
-      alert(`${ev.title}\n\nDate: ${formatDate(ev.date)}\nVenue: ${ev.venue}, ${ev.city}\nPrice: ${ev.currency}${ev.price}\n\n${ev.desc}`);
+      alert(`${ev.title}\nDate: ${formatDate(ev.date)}\nVenue: ${ev.venue}, ${ev.city}\nPrice: ${ev.currency}${ev.price}`);
     }
 
-    // modal open / close
+
     window.openTicketModal = function(id){
       currentEvent = festivals.find(x=>x.id===id);
       if(!currentEvent) return;
       ticketModal.setAttribute('aria-hidden','false');
-      modalDesc.textContent = `${currentEvent.title} — ${formatDate(currentEvent.date)} • ${currentEvent.venue}, ${currentEvent.city} — From ${currentEvent.currency}${currentEvent.price}`;
-      purchaseStatus.textContent = '';
-      ticketQty.value = 1;
-      ticketType.value = 'general';
+      modalDesc.textContent = `${currentEvent.title} — ${formatDate(currentEvent.date)} at ${currentEvent.venue}, ${currentEvent.city}`;
       document.body.style.overflow = 'hidden';
     }
 
@@ -189,38 +190,131 @@
       document.body.style.overflow = '';
     }
 
+    function showThankYouModal(){
+      ticketModal.setAttribute('aria-hidden','true');
+      thankYouModal.setAttribute('aria-hidden','false');
+    }
+
+    function closeThankYouModal(){
+      thankYouModal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    }
+
     modalClose.addEventListener('click', closeTicketModal);
     modalCancel.addEventListener('click', closeTicketModal);
-    ticketModal.addEventListener('click', (e) => {
-      if(e.target === ticketModal) closeTicketModal();
-    });
+    closeThankYou.addEventListener('click', closeThankYouModal);
 
-    // purchase flow (simulated)
-    ticketForm.addEventListener('submit', (e) => {
+    ticketForm.addEventListener('submit', (e)=>{
       e.preventDefault();
-      if(!currentEvent){
-        purchaseStatus.style.color = 'red';
-        purchaseStatus.textContent = 'No event selected.';
-        return;
-      }
-      const qty = Math.max(1, parseInt(ticketQty.value) || 1);
-      const isVip = ticketType.value === 'vip';
-      const unitPrice = currentEvent.price + (isVip ? 100 : 0);
-      const total = unitPrice * qty;
-      purchaseStatus.style.color = 'green';
-      purchaseStatus.textContent = `Success! You purchased ${qty} x ${isVip ? 'VIP' : 'General'} for ${currentEvent.title}. Total: ${currentEvent.currency}${total}. (Demo — no payment processed)`;
-      // close after short delay
-      setTimeout(() => {
-        closeTicketModal();
-      }, 2200);
+      showThankYouModal();
     });
 
-    // responsive nav toggle (same behavior as other pages)
-    const navToggle = document.getElementById('navToggle');
-    const mainNav = document.getElementById('mainNav');
-    navToggle.addEventListener('click', () => {
-      mainNav.style.display = mainNav.style.display === 'block' ? 'none' : 'block';
+    filterBtn.addEventListener('click', ()=>{
+      const q = searchTickets.value.trim().toLowerCase();
+      const region = regionSelect.value;
+      const filtered = festivals.filter(f=>{
+        const matchesRegion = region==='all'?true:f.region.toLowerCase()===region.toLowerCase();
+        const matchesQuery = f.title.toLowerCase().includes(q)||f.city.toLowerCase().includes(q);
+        return matchesRegion&&matchesQuery;
+      });
+      renderTickets(filtered);
+    });
+
+    clearFilter.addEventListener('click', ()=>{
+      searchTickets.value='';
+      regionSelect.value='all';
+      renderTickets(festivals);
     });
   </script>
+
+  <style>
+
+input[type="number"],
+input[type="text"],
+select {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1.5px solid #e0e0e0;
+  outline: none;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #fff;
+}
+
+
+input[type="number"]:hover,
+input[type="text"]:hover,
+select:hover {
+  border-color: #999;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+select:focus {
+  border-color: #ff6600; 
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
+}
+
+
+#ticketForm label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: #333;
+}
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+      z-index: 9999;
+    }
+    .modal[aria-hidden="false"] {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      animation: fadeInUp .3s ease;
+    }
+    .modal-close {
+      position: absolute;
+      top: .8rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #555;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: .5rem;
+      margin-top: 1rem;
+    }
+    @keyframes fadeInUp {
+      from {transform: translateY(20px); opacity: 0;}
+      to {transform: translateY(0); opacity: 1;}
+    }
+  </style>
 </body>
+
 </html>
